@@ -689,7 +689,7 @@
       "parameters": {
         "toolDescription": "Usa esta herramienta cuando ya tengas todos los datos necesarios para crear la carga",
         "method": "POST",
-        "url": "https://ia.followlsn.com/api/integracion/procesar",
+        "url": /procesar",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -739,7 +739,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://cezqpjpfdjybipsrlfqb.supabase.co/rest/v1/rpc/finalize_flush",
+        "url": "=supabase.co/rest/v1/rpc/finalize_flush",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -822,7 +822,7 @@
     {
       "parameters": {
         "requestMethod": "POST",
-        "url": "=https://panel.followlsn.com/webhook/enviar-texto-plano",
+        "url": "=/enviar",
         "allowUnauthorizedCerts": true,
         "responseFormat": "string",
         "options": {
