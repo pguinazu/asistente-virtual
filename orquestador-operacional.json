@@ -749,7 +749,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer sb_secret_nD0kGJJXCzI7-rLFVCp4MA_NUiKEkpt"
+              "value": ""
             },
             {
               "name": "Content-Type",
