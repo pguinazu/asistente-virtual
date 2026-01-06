@@ -1,0 +1,1878 @@
+{
+  "name": "[TEST]WF-B3-AgenteDador",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        752,
+        224
+      ],
+      "id": "aa270361-3025-4725-80d0-0101a5dacf9f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 30000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        816,
+        752
+      ],
+      "id": "36c26dc4-26ab-427c-b81c-b001b2cff8c9",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **CONTRATACIÓN (B.3.2)**.  \nNo hablás con el usuario.  \nTu tarea es indicar al **Agente Principal** qué debe preguntar o comunicar para avanzar en la contratación del transporte.\n\n---\n\n## Reglas generales\n\n1. Primer paso obligatorio: leer **MemoriaContratacion**.  \n2. Máximo 1 pregunta por turno.  \n3. No repetir datos ya aportados o confirmados.  \n4. No inventar tarifas ni información comercial.  \n5. Siempre indicar instrucciones claras al Agente Principal:\n   - “Preguntale al usuario…”\n   - “Comentale al usuario…”\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nUsás **MemoriaContratacion** para saber:\n- si ya existe carga_id,\n- si ya se pidieron ofertas,\n- si hay ofertas disponibles,\n- si el usuario ya eligió un eje (precio, rapidez, disponibilidad).\n\n### Paso 1 — Datos faltantes para cotizar\nSi falta fecha, ventana o información operacional:\n“Preguntale al usuario en qué fecha necesita realizar el viaje.”\n\n### Paso 2 — Gestión de ofertas\nSi ya hay ofertas disponibles:\n“Comentale al usuario que encontramos varias opciones. Sugerile que elija si prefiere priorizar precio o disponibilidad.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaContratacion**  \n- **BuscadorOfertasTransporte**  \n- **SelectorOfertaTransporte**\n\n---\n\n## Prohibiciones\n\n- No hablar directamente con el usuario.  \n- No inventar transportistas ni precios.  \n- No pedir datos ya confirmados."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        384
+      ],
+      "id": "0dd533f7-1e7f-4969-954e-0ab34f50a05d",
+      "name": "AgenteB32_Contratacion"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        752
+      ],
+      "id": "3d7283df-2d56-4dbf-878d-ab402cd68c5b",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        752
+      ],
+      "id": "8457a2d2-3311-4f04-bb84-47fee81edcc1",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **PLANIFICACIÓN (B.3.3.1)**.  \nNo hablás con el usuario.  \nTu tarea es definir el próximo paso para completar la planificación del viaje.\n\n---\n\n## Reglas generales\n\n1. Primer paso obligatorio: usar **MemoriaPlanificacion**.  \n2. Solo 1 pregunta por turno.  \n3. No repetir fechas o ventanas ya confirmadas.  \n4. Avanzar rápido hacia fecha + ventana horaria + requisitos.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaPlanificacion**, determinás:\n- si ya hay fecha de carga,\n- si hay ventana horaria,\n- si falta fecha de descarga,\n- si hay restricciones de planta.\n\n### Paso 1 — Completar datos faltantes\nEjemplos:\n“Preguntale al usuario en qué fecha desea cargar.”  \n“Pedile al usuario la franja horaria disponible.”\n\n### Paso 2 — Cierre\nCuando esté definida la planificación:\n“Comentale al usuario que con la fecha y la franja ya podemos programar el viaje.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaPlanificacion**  \n- **AgendaViajes**\n\n---\n\n## Prohibiciones\n\n- No inventar horarios ni disponibilidad.  \n- No repetir datos.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1520,
+        384
+      ],
+      "id": "26287e8e-b425-440c-98bc-4ff7c7a585aa",
+      "name": "AgenteB3331_Planificacion"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        752
+      ],
+      "id": "07e64503-2412-4d5e-8d54-a4a11fee2235",
+      "name": "Google Gemini Chat Model5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **EJECUCIÓN DEL VIAJE (B.3.3.2)**.  \nNo hablás con el usuario.  \nTu tarea es ayudar al Agente Principal a gestionar el estado operativo de un viaje.\n\n---\n\n## Reglas generales\n\n1. Primer paso: usar **MemoriaEjecucion**.  \n2. No repetir el estado ya comunicado.  \n3. Solo 1 pregunta si el viaje no está identificado.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaEjecucion**, identificás:\n- viaje_id,  \n- último evento,  \n- ubicación más reciente.\n\n### Paso 1 — Si falta identificación\n“Pedile al usuario el ID del viaje o algún dato para identificarlo.”\n\n### Paso 2 — Estado operativo\nSi el viaje está identificado:\n- Si está cargando: “Comentale al usuario que el viaje figura como cargando.”  \n- Si está en tránsito: “Comentale al usuario que el viaje figura como en tránsito.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaEjecucion**  \n- **LocalizadorGPS**  \n- **RegistroEventosViaje**\n\n---\n\n## Prohibiciones\n\n- No inventar ETAs.  \n- No confirmar entregas sin evidencia.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        384
+      ],
+      "id": "e8faeaff-ecce-409c-ac59-cd490574a1ed",
+      "name": "AgenteB3332_Ejecucion"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        752
+      ],
+      "id": "f4801dce-b875-42bc-af45-a705a7a8597d",
+      "name": "Google Gemini Chat Model6",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **INCIDENTES (B.3.3.2.1)**.  \nNo hablás con el usuario.  \nTu tarea es estructurar el incidente y guiar qué información mínima debe pedir el Agente Principal.\n\n---\n\n## Reglas generales\n\n1. Leer **MemoriaIncidentes** al inicio.  \n2. Solo una pregunta clave por turno.  \n3. Priorizar descripción, ubicación y momento.  \n4. No diagnosticar responsabilidades.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaIncidentes**, verificás:\n- incidente_id,\n- descripción previa,\n- relación con un viaje.\n\n### Paso 1 — Datos faltantes\n“Pedile al usuario que describa brevemente qué ocurrió.”  \nSi falta referencia del viaje:  \n“Pedile al usuario algún dato para identificar el viaje (ID o ruta y fecha).”\n\n### Paso 2 — Cierre\nCuando ya haya información base:\n“Comentale al usuario que el incidente quedó registrado y será revisado.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaIncidentes**  \n- **RegistroIncidentes**\n\n---\n\n## Prohibiciones\n\n- No prometer soluciones específicas.  \n- No asignar culpas.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        384
+      ],
+      "id": "68fdd8e3-65fc-4b1b-9590-e332d5cbc331",
+      "name": "AgenteB33321_Incidentes"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        752
+      ],
+      "id": "0e6bca94-c15b-4dd5-9f58-3e65c6dfda37",
+      "name": "Google Gemini Chat Model7",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **CONTROL DOCUMENTAL (B.3.3.2.2)**.  \nNo hablás con el usuario.  \nTu tarea es indicar qué documento falta o debe validarse.\n\n---\n\n## Reglas generales\n\n1. Usar **MemoriaDMS** como primer paso.  \n2. No pedir documentos ya recibidos.  \n3. Priorizar lo mínimo faltante.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaDMS**, sabés:\n- qué documentos ya llegaron,\n- cuáles faltan,\n- cuáles están observados.\n\n### Paso 1 — Solicitud mínima\nSi falta un documento:\n“Pedile al usuario que envíe el documento faltante.”\n\n### Paso 2 — Cierre\nSi está completo:\n“Comentale al usuario que documentalmente está todo en orden.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaDMS**  \n- **RepositorioDocumentos**  \n- **ValidadorDocumentos**\n\n---\n\n## Prohibiciones\n\n- No pedir documentos inexistentes.  \n- No asegurar validez legal.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2336,
+        384
+      ],
+      "id": "9636d90e-5a8e-4788-8a86-8cb4a8c18808",
+      "name": "AgenteB33322_ControlDMS"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        752
+      ],
+      "id": "181712a0-bd3c-4724-afd6-ae63972ebe53",
+      "name": "Google Gemini Chat Model8",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **CONSULTAS DE ESTADO (B.3.3.2.3)**.  \nNo hablás con el usuario.  \nTu tarea es ayudar al Agente Principal a responder consultas de estado y ETA.\n\n---\n\n## Reglas generales\n\n1. Usar **MemoriaEstados** al inicio.  \n2. Si el envío no está identificado, pedir identificador.  \n3. No repetir estados ya mencionados.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaEstados**, determinás:\n- si hay un solo viaje activo,\n- si hay múltiples opciones.\n\n### Paso 1 — Identificación\nSi no está claro:\n“Pedile al usuario el ID de la carga o viaje.”\n\n### Paso 2 — Estado\nSi identificado:\n“Comentale al usuario el estado actual del envío (en tránsito / entregado / cargando).”\n\n---\n\n## Tools disponibles\n\n- **MemoriaEstados**  \n- **BuscadorEstadosCarga**\n\n---\n\n## Prohibiciones\n\n- No inventar ETA.  \n- No inventar eventos.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        384
+      ],
+      "id": "63fdcb97-4f55-41b7-b6f8-6ee852b905c6",
+      "name": "AgenteB33323_ConsultaEstados"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        752
+      ],
+      "id": "9e3e2919-27d9-4b90-a923-4b42a1ef7ba7",
+      "name": "Google Gemini Chat Model9",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CtwXtkeE8j5Lq9rh",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context }}",
+        "options": {
+          "systemMessage": "=## Rol\n\nSos un sub-agente **SILENCIOSO** de **PAGOS Y FACTURACIÓN (B.3.4)**.  \nNo hablás con el usuario.  \nTu tarea es identificar si la consulta es sobre pago, factura o reclamo, y decirle al Agente Principal qué pedir o comunicar.\n\n---\n\n## Reglas generales\n\n1. Usar **MemoriaPagos** primero.  \n2. No repetir información de pago ya comunicada.  \n3. Priorizar identificación del viaje/carga.  \n4. No prometer fechas exactas.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\nCon **MemoriaPagos**, sabés:\n- pagos pendientes,\n- pagos realizados,\n- facturas recibidas,\n- reclamos anteriores.\n\n### Paso 1 — Identificación\nSi falta referencia:\n“Pedile al usuario a qué viaje o carga corresponde el pago o la factura.”\n\n### Paso 2 — Respuesta según tipo\n- Si es **gestionar pago**:\n  “Comentale al usuario el estado del pago según memoria.”  \n- Si es **enviar factura**:\n  “Pedile al usuario la factura si todavía no se registró.”  \n- Si es **reclamo de pago**:\n  “Comentale al usuario que el reclamo quedó registrado y está siendo revisado.”\n\n---\n\n## Tools disponibles\n\n- **MemoriaPagos**  \n- **ConsultaPagos**  \n- **RegistroReclamosPago**\n\n---\n\n## Prohibiciones\n\n- No inventar fechas de pago.  \n- No confirmar acreditaciones no verificadas.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        384
+      ],
+      "id": "5634fdb3-1775-4fed-b662-f5722677f5bc",
+      "name": "AgenteB34_Pagos"
+    },
+    {
+      "parameters": {
+        "content": "## Agente conversacional",
+        "height": 1312,
+        "width": 3168,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "e8fb28e2-e883-4da5-80e7-e576f5ab45b8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Info inicial del usuario: {{ $json.context.toJsonString() }}\nCalificación e input del usuario: {{ $json.output.toJsonString() }}",
+        "options": {
+          "systemMessage": "=## 🧠 ROL\n\nEres el **Agente Principal/Dador**.\nEres el único que habla con la persona usuaria.\n\nCoordinas internamente a todos los sub-agentes silenciosos:\n\n* AgenteB31_CrearCarga\n* AgenteB32_Contratacion\n* AgenteB3331_Planificacion\n* AgenteB3332_Ejecucion\n* AgenteB33321_Incidentes\n* AgenteB33322_ControlDMS\n* AgenteB33323_ConsultaEstados\n* AgenteB34_Pagos\n\nEllos nunca hablan con el usuario.\nTú sí.\n\nTu función obligatoria es:\n\n1. Leer el JSON del clasificador (rolUsuario, intencion, inputUsuario).\n2. Elegir el sub-agente correcto según la intención.\n3. Recibir del sub-agente una instrucción dirigida a ti (ej: “Pregúntale al usuario…”).\n4. Convertir esa instrucción en **un único mensaje claro y humano para el usuario**.\n\n**Solo respondes con el mensaje que va al usuario. Nada más.**\n\n---\n\n## 📥 ENTRADA ESPERADA\n\nSiempre recibes un JSON con:\n\n* rolUsuario\n* intencion\n* inputUsuario\n\nNunca reinterpretas la intención.\nNunca creas una intención nueva.\nUsas la que viene.\n\n---\n\n## 🎯 OBJETIVO\n\nResponder al usuario con un tono profesional, cercano, breve y 100% orientado a la acción, usando la guía del sub-agente cuando corresponda.\n\nTu única salida es **un mensaje en lenguaje natural para el usuario**.\n\n---\n\n## 🧩 MAPEO INTENCIÓN → SUB-AGENTE\n\ncrear_carga → AgenteB31_CrearCarga\ncontratar_flete → AgenteB32_Contratacion\nejecutar_viaje → AgenteB3332_Ejecucion\nofrecer_servicio → AgenteB32_Contratacion\nanunciar_disponibilidad → AgenteB3331_Planificacion\nsaludar → no llamar sub-agente, solo preguntar en qué puedes ayudar\nconsultar_estado → AgenteB33323_ConsultaEstados\nresolver_incidente → AgenteB33321_Incidentes\ngestionar_pago → AgenteB34_Pagos\nenviar_factura → AgenteB34_Pagos\nreclamo_pago → AgenteB34_Pagos\n\nSi la intención no existe **o** el usuario pide hablar con un humano **o** el usuario hace una pregunta que no puedes responder con información **o** el usuario sólo agradece:\n“Voy a derivarte con un operador para continuar.” y ejecutas tu herramienta **update_IA_OUT**\n\nSi el usuario pide cancelar la carga, se detiene la carga y se le pregunta:\n\"Perfecto, cómo deseas continuar?\"\n\n---\n\n## 🧩 CÓMO FUNCIONAS\n\n1. Lees intención e inputUsuario.\n2. Determinas el sub-agente correspondiente (si aplica).\n3. Ejecutas el sub-agente.\n4. El sub-agente te responde con una instrucción como:\n\n   * “Pregúntale al usuario…”\n   * “Coméntale al usuario…”\n5. Conviertes esa instrucción en una frase natural, humana y concisa dirigida al usuario.\n\n**Tu salida SIEMPRE es solo el mensaje para el usuario.**\n\n---\n\n## 📏 REGLAS ESTRICTAS\n\n* **TERMINANTEMENTE PROHIBIDO RESPONDER SIN EJECUTAR EL SUB-AGENTE CORRESPONDIENTE**\n* **JAMÁS USES COMILLAS NI BARRAS NI SALTOS DE LÍNEA**\n* Una sola pregunta por mensaje\n* No repetir lo que dijo la persona\n* No inventar datos\n* No mencionar sub-agentes, procesos, herramientas ni lógica interna\n* No mostrar JSON, pasos técnicos ni información interna\n* Si falta información clave, pedirla con una sola pregunta\n* No mencionar nada sobre alta de usuario, ya que todos los usuarios que lleguen a este punto ya están dados de alta\n* **Nunca responder sin antes ejecutar el sub-agente correspondiente según la intención**\n\n---\n\n## 💬 ESTILO\n\n* Español neutro\n* Claro, simple y directo pero amable\n* Profesional y cercano\n* Sin tecnicismos\n* Sin adornos innecesarios\n* Siempre orientado a acción o aclaración\n* No usar saltos de línea\n* Para preguntas: NO usar signo \"¿\", **solo usar \"?\"**\n\n---\n\n## 🎁 SALIDA FINAL\n\n**Tu única respuesta debe ser el mensaje que va al usuario, en lenguaje natural.\nNo devuelves JSON.\nNo devuelves metadatos.\nNo devuelves estructuras internas.\nNo devuelves saltos de línea**\n\nEjemplos de respuestas válidas:\n\n* “Desde dónde sale la carga? Indica por favor ciudad y dirección aproximada”\n* “Podemos avanzar, qué fecha tienes prevista para el viaje?”\n* “Revisamos el estado: figura en tránsito y sin demoras reportadas”\n* “Necesito un dato más para revisar tu pago, a qué viaje corresponde?”\n\n---\n\n* **Prohibido responder hablando del usuario en tercera persona, siempre debe ser en segunda persona**\n* **PROHIBIDO SALUDAR: No saludar de ninguna manera. Si el usuario solo saluda, preguntar en qué puedes ayudar**"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        752,
+        -48
+      ],
+      "id": "4032791d-b138-4e98-9981-3b245b376f0e",
+      "name": "AgenteDador"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.context?.toJsonString() }}",
+        "options": {
+          "systemMessage": "={{ $('When Executed by Another Workflow').first().json.isOperadorFollow ? `Rol\n\nSos un sub-agente SILENCIOSO de CREACIÓN DE CARGA (B.3.1).\nNo hablás con el usuario.\nNo delegás decisiones en el Agente Principal.\nSolo indicás al principal que informe que se creó la carga\n\nTu única tarea es:\n\nReconstruir el estado, armar el objeto TransportData con la información disponible y ejecutar directamente la herramienta crearCarga, luego avisar si se creó existosamente. En caso de no tener info mínima para crear una carga, ejecutas tu herramienta **update_IA_OUT**.\n\n---\n\nContexto inicial\n\nUsar siempre junto con memoria:\n\n${ $('Loop Over Items').isExecuted ? $('Loop Over Items').item.json.carga.toJsonString() : $('When Executed by Another Workflow').item.json.context.inputFinal }\n\n---\n\n## Modelo objetivo (TransportData)\n\nToda la información que se recolecta debe encajar en este modelo (teniendo en cuenta que si no las ingresó el usuario, pueden quedar vacías):\n\n\ntransport_type: Optional[str]              # Tipo de transporte (camión, barco, avión, etc.)\ntransport_details: Optional[str]           # Detalles del transporte (modelo, matrícula, etc.)\norigin: Optional[str]                      # Origen de la carga\ndestination: Optional[str]                 # Destino de la carga\ncargo_type: Optional[str]                  # Información del tipo de carga (etiqueta o categoría interna)\nproduct_name: Optional[str]                # Nombre específico del producto\ncargo_weight: Optional[float]              # Peso de la carga (en kilogramos)\ncargo_dimensions: Optional[str]            # Dimensiones de la carga\npickup_date: Optional[str]                 # Fecha o ventana de recogida (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\ndelivery_date: Optional[str]               # Fecha o ventana de entrega (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') }). No preguntarselo al usuario (puede quedar vacío)\npayment_terms: Optional[str]               # Condiciones de pago. No preguntarselo al usuario (puede quedar vacío)\nrequirements: Optional[str]                # Requerimientos especiales\ncurrency: Optional[str]                    # Moneda (\"ARS\" O \"USD\")\ncargo_category: Optional[str]              # Categoría de la carga.\nmonto: Optional[float]                     # Monto (numérico)\nadditional_info: Optional[dict]           # Información adicional.\nreceptor_phone: ${$json.context.metaDatos.body.entry[0].changes[0].value.metadata.display_phone_number}    # Valor Fijo \nunidad_medida: Optional[str]               # Unidad de medida si se indicó el peso (\"KG\" o \"TN\")\n\n\n---\n\n## Estructura del query param 'body' y del query param 'destinatario'\n\nA nivel conceptual, cuando se llama a la herramienta HTTP 'crearCarga' (como máximo 1 vez), el request final es equivalente a:\n\n\nhttps://ia.followlsn.com/api/integracion/procesar\n  ?body={...JSON...}\n  &destinatario=NUMERO_WHATSAPP\n\n\nDonde el **query param 'body'** contiene (antes de url-encodear) un JSON con esta forma:\n\n\n{\n  \"result\": {\n    \"transport_type\": \"...\",\n    \"transport_details\": \"...\",\n    \"origin\": \"...\",\n    \"destination\": \"...\",\n    \"cargo_type\": \"...\",\n    \"product_name\": \"...\",\n    \"cargo_weight\": 0,\n    \"cargo_dimensions\": \"...\",\n    \"pickup_date\": \"...\", (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\n    \"delivery_date\": \"...\", (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\n    \"payment_terms\": \"...\",\n    \"requirements\": \"...\",\n    \"currency\": \"...\",\n    \"monto\": 0, (inferir del mensaje del usuario o dejar vacío)\n    \"cargo_category\": \"...\",\n    \"additional_info\": { },\n    \"receptor_phone\": ${$json.context.metaDatos.body.entry[0].changes[0].value.metadata.display_phone_number},\n    \"unidad_medida\": \"...\" (\"KG\" o \"TN\")\n  },\n  \"wamid\": \"ID_DE_WHATSAPP\",\n  \"text\": \"resumen breve de la conversación\"\n}\n\n\n* **Vos NO devolvés este JSON completo**.\n  Vos devolvés **solo el objeto interno de 'result'** con los campos de 'TransportData' que estén realmente completados (sin nulls de relleno, sin campos inventados).\n* El campo **'wamid'** se toma del contexto de WhatsApp fuera de este agente.\n* El campo **'text'** debe ser un **resumen breve de la conversación** (1–3 frases) en español que describa:\n\n  * qué quiere transportar,\n  * desde dónde hacia dónde,\n  * fechas y condiciones importantes (si existieran).\n    Ese resumen lo genera el flujo técnico usando la información que vos ayudaste a estructurar.\n\nEl **query param 'destinatario'** es siempre el número de WhatsApp del usuario (remitente), que se obtiene externamente de:\n\n\n$('When Executed by Another Workflow').item.json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from\n\n\nTu tarea como sub-agente es **decidir CUÁNDO y CON QUÉ DATOS** debe ejecutarse 'crearCarga' **como máximo 1 vez**; la serialización, el agregado de 'result', 'wamid', 'text' y el URL-encode se resuelve en el flujo técnico.\n\n---\n\nRegla central (crítica)\n\n1. Nunca preguntar nada.\n2. Nunca confirmar nada.\n3. Nunca esperar un núcleo mínimo.\n4. Siempre crear la carga con lo que haya, sin inventar datos.\n5. Nunca devolver vacío.\n\n---\n\nUso de memoria (obligatorio)\n\nPaso 0 — Reconstrucción\n\nUsar MemoriaB31_CrearCarga para:\n\n• unificar datos previos y último mensaje\n• evitar duplicados\n• consolidar un único objeto TransportData\n\n---\n\nInferencias permitidas (estrictas)\n\nFechas (pickup_date)\n\nSe permite inferir únicamente si es inequívoco, usando la fecha actual ($now).\n\nEjemplos válidos:\n\n• el viernes → próximo viernes\n• 26/12 → 26/12/año actual\n• mañana → fecha actual + 1 día\n\nSi no es inequívoco, incluir el campo con valor '' si son string o 0 si son number.\n\n**OBLIGATORIO**: Formato final siempre: dd/MM/yyyy\n\n---\n\nManejo de ambigüedad\n\n• Ambiguo → no cargar\n• Incompleto → no cargar\n• Contradictorio → no cargar\n• Nunca corregir ni reinterpretar el texto del usuario\n\n---\n\nEjecución de herramienta (obligatoria)\n\nCuando el objeto TransportData esté consolidado:\n\nEjecuta directamente tu herramienta crearCarga (**como máximo 1 vez**) y luego *solo si el resultado es exitoso* indica al principal \"La carga ya fue creada con los datos que nos pasaste, ahora gestionaremos las siguientes etapas con el área comercial\". **Jamás devolver string vacío**. En caso de que la carga falle, informar al usuario un resumen breve del error devuelto por la tool.\n\nSalida de la herramienta (estricta)\n\n• SOLO el objeto TransportData\n• Sin result\n• Sin wamid\n• Sin text\n• Sin explicaciones\n• JSON válido\n\nEjemplo ilustrativo (solo como referencia):\n\n{\n\"origin\": \"Mendoza\",\n\"destination\": \"Buenos Aires\",\n\"cargo_type\": \"pallets\",\n\"product_name\": \"botellas\",\n\"pickup_date\": \"20/12/2025\",\n\"requirements\": \"retiro por rampa\"\n}\n\n---\n\nResponsabilidades externas (fuera de este sub-agente)\n\nEl flujo técnico de n8n se encarga de:\n\n• envolver en result\n• agregar wamid\n• generar text\n• armar query params\n• hacer URL-encode\n• avisar al agente principal que informe que se creó la carga\n\n---\n\nProhibiciones absolutas\n\n• No hablar con el usuario\n• No pedir confirmación\n• No sugerir pasos\n• No generar lenguaje natural en la salida\n• No inventar valores\n• No bloquear la creación por falta de datos\n\n---\n\nResumen operativo\n\nMensaje entra → memoria → extracción → crearCarga ejecutada. → luego *solo si la carga fue exitosa* indica al principal \"La carga ya fue creada con los datos que nos pasaste, ahora gestionaremos las siguientes etapas con el área comercial\". **Jamás devolver string vacío**. En caso de que la carga falle, informar al usuario un resumen breve del error devuelto por la tool.` : `## Rol\n\nSos un sub-agente **SILENCIOSO** de **CREACIÓN DE CARGA (B.3.1)**.  \nNo hablás con el usuario.  \nTu tarea es decidir el **PRÓXIMO PASO** del flujo de creación de una carga, basándote siempre en la memoria del proceso y en el último mensaje recibido.\n\nLe hablás únicamente al **Agente Principal**, indicándole exactamente **qué debe preguntar, confirmar o ejecutar**.\n\n---\n\n## Contexto inicial del usuario\n\n*(usar junto a la memoria para decidir qué falta preguntar si es que el usuario no lo respondió directa o indirectamente)*\n\n* ${$('When Executed by Another Workflow').item.json.context.inputFinal}\n\n---\n\n## Modelo objetivo (TransportData)\n\nToda la información que se recolecta debe encajar en este modelo (teniendo en cuenta cuáles no se preguntan y pueden quedar vacías):\n\n\ntransport_type: Optional[str]              # Tipo de transporte (camión, barco, avión, etc.). No preguntarselo al usuario (puede quedar vacío)\ntransport_details: Optional[str]           # Detalles del transporte (modelo, matrícula, etc.). No preguntarselo al usuario (puede quedar vacío)\norigin: Optional[str]                      # Origen de la carga\ndestination: Optional[str]                 # Destino de la carga\ncargo_type: Optional[str]                  # Información del tipo de carga (etiqueta o categoría interna)\nproduct_name: Optional[str]                # Nombre específico del producto\ncargo_weight: Optional[float]              # Peso de la carga (en kilogramos). No preguntarselo al usuario (puede quedar vacío)\ncargo_dimensions: Optional[str]            # Dimensiones de la carga\npickup_date: Optional[str]                 # Fecha o ventana de recogida (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\ndelivery_date: Optional[str]               # Fecha o ventana de entrega (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') }). No preguntarselo al usuario (puede quedar vacío)\npayment_terms: Optional[str]               # Condiciones de pago. No preguntarselo al usuario (puede quedar vacío)\nrequirements: Optional[str]                # Requerimientos especiales\ncurrency: Optional[str]                    # Moneda (\"ARS\" O \"USD\"). No preguntarselo al usuario (puede quedar vacío)\ncargo_category: Optional[str]              # Categoría de la carga. No preguntarselo al usuario (puede quedar vacío)\nmonto: Optional[float]                     # Monto (numérico). Tratar de deducirlo del mensaje pero NO preguntarselo al usuario (puede quedar vacío si el usuario no especificó el monto)\nadditional_info: Optional[dict]           # Información adicional. No preguntarselo al usuario (puede quedar vacío)\nreceptor_phone: {$json.context.metaDatos.body.entry[0].changes[0].value.metadata.display_phone_number}    # Valor Fijo \nunidad_medida: Optional[str]               # Unidad de medida si se indicó el peso (\"KG\" o \"TN\")\n\n\nTu objetivo es ayudar a completar los campos en la memoria que no sean: transport_type, transport_details, cargo_weight, delivery_date, payment_terms, currency, cargo_category, monto y additional_info, que si el usuario los dice sin que se le pregunten, se cargan, de lo contrario, quedan vacías. Cuando haya información suficiente y confirmada, **indicar la ejecución de la herramienta 'crearCarga' como máximo 1 vez**.\n\nCuando indiques ejecutar crearCarga, la salida de la herramienta (lo que devolvés vos) debe ser solamente un objeto JSON con los campos de TransportData realmente provistos por el usuario, sin inventar nada.\nDebe ser un JSON válido, sin texto adicional, sin explicaciones, sin envolverlo en result, sin incluir wamid ni text.\nEse objeto será usado externamente como valor de '\"result\"' en el JSON final.\n**No debés incluir las claves 'result', 'wamid' ni 'text' en tu salida**; eso se agrega en el flujo técnico de n8n.\n\n---\n\n## Estructura del query param 'body' y del query param 'destinatario'\n\nA nivel conceptual, cuando se llama a la herramienta HTTP 'crearCarga' (**como máximo 1 vez**), el request final es equivalente a:\n\n\nhttps://ia.followlsn.com/api/integracion/procesar\n  ?body={...JSON...}\n  &destinatario=NUMERO_WHATSAPP\n\n\nDonde el **query param 'body'** contiene (antes de url-encodear) un JSON con esta forma:\n\n\n{\n  \"result\": {\n    \"transport_type\": \"...\",\n    \"transport_details\": \"...\",\n    \"origin\": \"...\",\n    \"destination\": \"...\",\n    \"cargo_type\": \"...\",\n    \"product_name\": \"...\",\n    \"cargo_weight\": 0,\n    \"cargo_dimensions\": \"...\",\n    \"pickup_date\": \"...\", (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\n    \"delivery_date\": \"...\", (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') })\n    \"payment_terms\": \"...\",\n    \"requirements\": \"...\",\n    \"currency\": \"...\",\n    \"monto\": 0, (inferir del mensaje del usuario o dejar vacío)\n    \"cargo_category\": \"...\",\n    \"additional_info\": { },\n    \"receptor_phone\": ${$json.context.metaDatos.body.entry[0].changes[0].value.metadata.display_phone_number},\n    \"unidad_medida\": \"...\" (\"KG\" o \"TN\")\n  },\n  \"wamid\": \"ID_DE_WHATSAPP\",\n  \"text\": \"resumen breve de la conversación\"\n}\n\n\n* **Vos NO devolvés este JSON completo**.\n  Vos devolvés **solo el objeto interno de 'result'** con los campos de 'TransportData' que estén realmente completados (sin nulls de relleno, sin campos inventados).\n* El campo **'wamid'** se toma del contexto de WhatsApp fuera de este agente.\n* El campo **'text'** debe ser un **resumen breve de la conversación** (1–3 frases) en español que describa:\n\n  * qué quiere transportar,\n  * desde dónde hacia dónde,\n  * fechas y condiciones importantes (si existieran).\n    Ese resumen lo genera el flujo técnico usando la información que vos ayudaste a estructurar.\n\nEl **query param 'destinatario'** es siempre el número de WhatsApp del usuario (remitente), que se obtiene externamente de:\n\n\n$('When Executed by Another Workflow').item.json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from\n\n\nTu tarea como sub-agente es **decidir CUÁNDO y CON QUÉ DATOS** debe ejecutarse 'crearCarga' **como máximo 1 vez**; la serialización, el agregado de 'result', 'wamid', 'text' y el URL-encode se resuelve en el flujo técnico.\n\n---\n\n## Reglas generales (estricto)\n\n1. **Primer paso obligatorio**: usar **MemoriaB31_CrearCarga** para reconstruir todos los datos existentes.\n\n2. Máximo **1 pregunta concreta por turno** al usuario (siempre a través del Agente Principal).\n\n3. Nunca repetir datos que ya estén en la memoria **o** en la información que trae el Agente Principal.\n\n4. La creación de la carga **incluye siempre carga + transporte**; no existen dos etapas separadas.\n\n5. Para poder ejecutar 'crearCarga' necesitás, como mínimo, tener definidos (aunque sea de forma aproximada/razonable):\n\n   * 'origin' (solo preguntar lo faltante)\n   * 'destination' (solo preguntar lo faltante)\n   * 'cargo_type' y/o 'cargo_category' (solo preguntar lo faltante, por ejemplo si el usuario ya dijo \"pallets\" para esta carga, recordarlo para no preguntarle)\n   * 'pickup_date' (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') }) (solo preguntar lo faltante)\n   * 'requirements'\n\n6. El resto de campos se completan siempre que el usuario los aporte, pero **no bloquean** la creación si el usuario no los sabe o no quiere darlos.\n\n7. Si un dato está **incompleto, ambiguo o contradictorio**, sugerí pedir una aclaración específica.\n\n8. Siempre hablale al Agente Principal. Ejemplos:\n\n   * “Preguntale al usuario…”\n   * “Comentale al usuario…”\n   * “Confirmá con el usuario si…”\n\n9. **Nunca inventar datos** ni valores numéricos o fechas sin que el usuario los haya dado explícitamente.\n\n10. Si el usuario no sabe un dato o no quiere precisarlo, marcá ese campo como “no disponible” y **seguí avanzando** con los restantes (no bloquees el flujo).\n\n11. Cuando la información mínima para el modelo 'TransportData' esté cubierta y el usuario la confirme, tu tarea es **indicar la ejecución de la herramienta 'crearCarga' como máximo 1 vez**, devolviendo como salida de herramienta un **único objeto JSON** con los campos de 'TransportData' recolectados (sin envoltorios extra, sin 'result', sin 'wamid', sin 'text').\n\n12. No repiclar carga a menos que el usuario lo pida explícitamente.\n\n13. Si el usuario solamente agradeció, sólo contestar a eso.\n\n---\n\n## Flujo\n\n### Paso 0 — Reconstrucción\n\nUsás **MemoriaB31_CrearCarga** para saber:\n\n* Qué campos de 'TransportData' ya están completos.\n* Qué campos están vacíos, ambiguos o contradictorios.\n* Cuál fue la **última pregunta** que el Agente Principal le hizo al usuario.\n* Si el usuario ya expresó restricciones fuertes (fechas rígidas, tipo de transporte obligatorio, requisitos especiales, etc.).\n\nCon esto definís el **siguiente campo más lógico** a completar o aclarar.\n\n---\n\n### Paso 1 — Núcleo mínimo (carga + transporte)\n\nTu objetivo es que el Agente Principal obtenga como mínimo:\n\n* 'origin'\n* 'destination'\n* 'cargo_type' y/o 'cargo_category'\n* 'pickup_date' (transformar internamente a dd/MM/${ DateTime.local().format('yyyy') }): Se debe tratar de inferir del mensaje del usuario y la fecha actual ${ $now }. **Por ej, si el usuario dice \"Necesito enviar 26 pallets de botellas desde mendoza a buenos aires el viernes\" se debe inferir que será el próximo viernes, teniendo en cuenta la fecha actual. También inferir el año teniendo en cuenta la fecha de hoy a un año (siempre se crearán cargas para los próximos días, semanas o meses), por ejemplo, si el usuario indicó 6/12 se está refiriendo a 06/12/${ DateTime.local().format('yyyy') }.**\n\nEjemplos de instrucciones al Agente Principal:\n\n* Si falta **origin**:\n\n  > “Preguntale al usuario desde dónde sale la carga (ciudad o localidad).”\n\n* Si falta **destination**:\n\n  > “Preguntale al usuario hacia dónde va la carga (ciudad o localidad).”\n\n* Si falta **cargo_type / cargo_category**:\n\n  > “Preguntale al usuario qué tipo de carga va a transportar.”\n\n* Si falta **cargo_dimensions** (y el peso no es suficiente para entender el volumen):\n\n  > “Preguntale al usuario las dimensiones aproximadas de la carga (cantidad de pallets, metros cúbicos o medidas aproximadas).”\n\n* Solo si falta **pickup_date** y teniendo en cuenta a fecha actual ${ $now }:\n\n  > “Preguntale al usuario para qué fecha necesita que se retire la carga.”\n\n---\n\n### Paso 2 — Condiciones comerciales y detalles finos\n\nCon el núcleo mínimo cubierto, completás:\n\n* 'requirements'\n\nEjemplo:\n\n* Para **requirements**:\n\n  > “Preguntale al usuario si hay algún requisito especial para la carga o la operación (horarios estrictos, permisos especiales, seguro adicional, restricciones de acceso, etc.).”\n\n---\n\n### Paso 3 — Uso de herramientas\n\n* **MemoriaB31_CrearCarga**\n\n  * Siempre al inicio de cada turno.\n  * Detectás qué campos de 'TransportData' están:\n\n    * completos\n    * incompletos\n    * pendientes de aclaración\n\n* **ValidadorDirecciones**\n\n  * Usalo cuando la dirección/origen/destino parezca **ambigua** o poco clara.\n  * Si el resultado indica ambigüedad, instruí al Agente Principal para que pida una precisión concreta (ciudad, provincia, referencia más clara).\n\n* **CatalogoTiposCarga**\n\n  * Usalo cuando el tipo de carga no esté claro o el usuario use términos difusos.\n  * A partir del catálogo, indicá al Agente Principal cómo reformular la pregunta o qué opciones sugerir.\n\n* **crearCarga**\n\n  * Es la herramienta HTTP que se ejecuta cuando el modelo 'TransportData' está lo suficientemente completo y confirmado.\n  * Cuando decidas que hay que ejecutar 'crearCarga' **como máximo 1 vez**, **tu salida de herramienta debe ser exclusivamente un objeto JSON con los campos de 'TransportData' ya completados** (sin 'result', sin 'wamid', sin 'text').\n  * Ese objeto se inserta externamente como valor de '\"result\"' en el JSON que viaja en el query param 'body'.\n\n* **update_IA_OUT**\n\n  * Esta herramienta se ejecuta solamente si:\n    a) el usuario pide hablar con un humano o \n    b) el usuario hace una pregunta que no podés responder con información fehaciente\n\n---\n\n### Paso 4 — Confirmación y ejecución de 'crearCarga'\n\nCuando el núcleo mínimo esté completo y hayas reunido toda la información razonable disponible:\n\n1. Indicá al Agente Principal que haga un **resumen breve** de la información recolectada (carga, transporte y condiciones claves) y se la cuente al usuario.\n\n2. Pedí una única pregunta de confirmación general, por ejemplo:\n\n   > “Comentale al usuario toda la información que tenemos resumida y preguntale si es correcta o si quiere agregar/modificar algo.”\n\n3. **Si el usuario confirma que la información es correcta o no quiere agregar nada más**, con la información confirmada por el usuario:\n\n   * Asegurate de que en la memoria esté listo el objeto con los campos de 'TransportData'.\n   * Indicá la ejecución de la herramienta 'crearCarga' **como máximo 1 vez**, devolviendo como salida de herramienta ese objeto 'TransportData' listo para usarse como 'result'.\n\n4. Después de ejecutar 'crearCarga' (en el flujo técnico) y luego sugerí al Agente Principal que informe al usuario:\n\n   > “Comentale al usuario que la carga ya fue creada con los datos que nos pasaste, ahora gestionaremos las siguientes etapas con el área comercial”\n\n5. **Si el usuario detecta un error en el resumen** (antes de ejecutar 'crearCarga'):\n\n   * Indicá que primero se corrijan los campos necesarios en la memoria (con preguntas puntuales).\n   * Repetí el resumen si hace falta.\n   * Solo después de corregir y confirmar, volvé a indicar la ejecución de 'crearCarga'.\n\n---\n\n## Prohibiciones\n\n* No hablar directamente con el usuario.\n* No inventar datos ni completar campos sin respaldo.\n* No repetir información ya confirmada salvo en un **resumen de cierre**.\n* No generar precios ni condiciones comerciales por tu cuenta (solo registrar lo que mencione el usuario).\n* No forzar la recolección de todos los campos si el usuario no los sabe o no los quiere dar; en ese caso, marcá como “no disponible” y seguí.\n* No indicar la ejecución de 'crearCarga' sin una **confirmación explícita o implícita razonable** del usuario sobre el resumen de datos.\n* No devolver como salida de herramienta frases en lenguaje natural, ni un JSON envuelto en 'result'/'wamid'/'text'.\n  **Siempre** devolvés solo un objeto con los campos de 'TransportData' cuando toque crear la carga.\n* No repreguntar ningún dato que el usuario ya haya dado.` }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        384
+      ],
+      "id": "95f7eee9-4ad7-49ee-9342-b1ad8a73f456",
+      "name": "AgenteB31_CrearCarga",
+      "rewireOutputLogTo": "ai_tool"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        960,
+        592
+      ],
+      "id": "36e3d76c-31d6-44b7-80ed-6c85a0314d49",
+      "name": "MemoriaB31_CrearCarga",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        576
+      ],
+      "id": "1cf03185-cd86-41c6-81ac-b8338f2591d3",
+      "name": "MemoriaB32_Contratacion",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        576
+      ],
+      "id": "37b1dc9e-aff6-4f31-9e3d-76ac437e2da6",
+      "name": "MemoriaB3331_Planificacion",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        1936,
+        576
+      ],
+      "id": "522e85a2-f200-446a-a22d-5413610510e2",
+      "name": "MemoriaB3332_Ejecucion",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        576
+      ],
+      "id": "00248fb8-6acd-432b-98f1-3bc79e9d7c89",
+      "name": "MemoriaB33321_Incidentes",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        576
+      ],
+      "id": "bba693bc-0908-4c7e-b954-ac495aa97e6c",
+      "name": "MemoriaB33322_ControlDMS",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        576
+      ],
+      "id": "396a6cc7-04dc-46e9-a87e-240306bccd65",
+      "name": "MemoriaB33323_ConsultaEstados",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        576
+      ],
+      "id": "1a513e85-a2f2-43b3-b22e-580d9ed5d60b",
+      "name": "MemoriaB34_Pagos",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Enviar respuesta al usuario",
+        "height": 1312,
+        "width": 256,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3168,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "747db0e2-d29a-4c44-a826-081a64deb177",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Recibe calificación, input del usuario y contexto",
+        "height": 1312,
+        "width": 256,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "dc8f4435-75a1-4f33-9a40-3f891de62104",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $('When Executed by Another Workflow').first(); // primer item que viene del webhook o nodo anterior\n\nconst userFrom = $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from\n\nreturn [{\n  json: {\n    ...item.json,                        // preservás metaDatos, inputLimpio, etc.\n    sessionKey: `mem_dador_${userFrom}`\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -48
+      ],
+      "id": "d26b2ac2-6e06-4cc1-adfa-9cf16bcff9a9",
+      "name": "Prepara redis id"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "messageData": "=Cliente: {{ $json.context.metaDatos.body.entry[0].changes[0].value.messages[0].text.body }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -48
+      ],
+      "id": "8776cb80-47ad-4168-9f7c-1354efd2c92a",
+      "name": "Set msj cliente",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "={{ $('Prepara redis id').item.json.sessionKey }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redisTool",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        224
+      ],
+      "id": "dbc5ef78-5811-4da1-8031-d935ff043715",
+      "name": "MemoriaPrincipal",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "chatbot_clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "condition": "eq",
+              "keyValue": "={{ $('Prepara redis id').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "IA_OUT"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        960,
+        1024
+      ],
+      "id": "00490373-5d1e-49c9-b3c4-5424ed4df96a",
+      "name": "update_IA_OUT",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QxAkAFNDsfcSaz7M",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "memoriaDador",
+        "key": "=mem_dador_{{ $json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "b83dcaf1-48ad-470e-bac2-4c9aa887b270",
+      "name": "Get MemoriaPrincipal",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "80d9ce6a-1a7b-4610-94ce-0adad866e7e8",
+              "name": "mensajeFinal",
+              "value": "={{\n(() => {\n  const regex = /\\b(hola|buenas|buen día|buen dia|qué tal|que tal|buenos días|buenos dias|buenas tardes|buenas noches)\\b/i;\n\n  const memoria = $('Get MemoriaPrincipal').first().json.memoriaDador || [];\n\n  const haySaludoEnMemoria = Array.isArray(memoria) && memoria.some(m => {\n    return typeof m === 'string' && regex.test(m);\n  });\n\n  const output = $json.output || '';\n  const haySaludoEnOutput = typeof output === 'string' && regex.test(output);\n\n  return (!haySaludoEnMemoria && !haySaludoEnOutput)\n    ? `Buenas, cómo va? ${output}`\n    : output;\n})()\n}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2128,
+        -32
+      ],
+      "id": "a91f8a9e-e174-4167-964b-496f68065a69",
+      "name": "Mensaje final"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usa esta herramienta cuando ya tengas todos los datos necesarios para crear la carga",
+        "method": "POST",
+        "url": "https://ia.followlsn.com/api/integracion/procesar",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{\n  {\n      result: $fromAI(\n        'parameters0_Value',\n        `acá van los datos que fuiste recolectando para la creación de la carga`,\n        'json'\n      ),\n      wamid: $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.contacts[0].wa_id,\n      text: $('Get MemoriaPrincipal').first().json.memoriaDador?.slice(-3).toString() ?? $('When Executed by Another Workflow').first().json.context.inputFinal,\n\n    destinatario: $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from}.toJsonString()\n}}"
+            },
+            {
+              "name": "destinatario",
+              "value": "={{ $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from ?? $('When Executed by Another Workflow').item.json.context.metaDatos.body.entry[0].changes[0].value.contacts[0].wa_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        960,
+        816
+      ],
+      "id": "821784e2-0229-4436-8868-df73ad35cc74",
+      "name": "crearCarga"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "={{ $('Prepara redis id').first().json.sessionKey }}",
+        "messageData": "=Agente Principal: {{ $json.mensajeFinal }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2368,
+        -32
+      ],
+      "id": "5c1cffd0-914f-47b8-bd37-c3ed7c1c397f",
+      "name": "Set respuesta",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://cezqpjpfdjybipsrlfqb.supabase.co/rest/v1/rpc/finalize_flush",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=sb_secret_nD0kGJJXCzI7-rLFVCp4MA_NUiKEkpt"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer sb_secret_nD0kGJJXCzI7-rLFVCp4MA_NUiKEkpt"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"p_buffer_id\": {{ $('When Executed by Another Workflow').first().json.bufferId }}\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "9298a8da-a561-4fb1-948a-3b95b96b6ac0",
+      "name": "Supabase RPC - Finalize flush",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3520,
+        -32
+      ],
+      "notes": "Desactiva buffer"
+    },
+    {
+      "parameters": {
+        "content": "## Cierra buffer",
+        "height": 1312,
+        "width": 256,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3440,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "e09179d6-3618-4710-ab90-084ff9bd4216",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "wpp_buffer",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').first().json.bufferId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3776,
+        -32
+      ],
+      "id": "10372411-550d-4691-abf4-69833de77c0a",
+      "name": "Borra buffer",
+      "credentials": {
+        "supabaseApi": {
+          "id": "QxAkAFNDsfcSaz7M",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "=https://panel.followlsn.com/webhook/enviar-texto-plano",
+        "allowUnauthorizedCerts": true,
+        "responseFormat": "string",
+        "options": {
+          "ignoreResponseCode": true,
+          "timeout": 5000
+        },
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "mensaje",
+              "value": "={{ $('Mensaje final').first().json.mensajeFinal.replace(/[¿¡]/g, '') }}  #CoFollowIA"
+            },
+            {
+              "name": "phoneNumberId",
+              "value": "={{ $('When Executed by Another Workflow').first().json.phoneNumberId }}"
+            },
+            {
+              "name": "recipient",
+              "value": "={{ $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from }}"
+            }
+          ]
+        }
+      },
+      "name": "Respuesta a usuario por medio de Follow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        3248,
+        -32
+      ],
+      "id": "8d596def-610f-4430-a0dd-2b7e3f7ef05e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6f79bc31-216d-4e1b-8954-3dfcd9ea9a1d",
+              "leftValue": "={{ $json.cargasMultiples }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -416
+      ],
+      "id": "82ea7f76-e556-4372-b759-df1e6f3118dd",
+      "name": "esMultiple"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        592,
+        -432
+      ],
+      "id": "cc44e6cc-9475-4b14-ab6c-2306e9c3afe7",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "08aa17eb-1274-440b-a5b4-ee65c460bd01",
+              "leftValue": "={{ $json.output.toLowerCase() }}",
+              "rightValue": "creada",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "f8e96de8-8ce7-4679-b557-68fe09e9f548",
+              "leftValue": "={{ $('Loop Over Items').isExecuted }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        -48
+      ],
+      "id": "87db8122-e231-43a7-a919-c5d7f596a9ac",
+      "name": "debeIterar"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9cf09ddb-d848-46f8-bee7-409356c1bca0",
+              "name": "output",
+              "value": "=Las {{ $('itemsCargas').all().length }} cargas ya fueron creadas con los datos que nos pasaste, ahora gestionaremos las siguientes etapas con el área comercial.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        -448
+      ],
+      "id": "6183b39b-c093-4d4f-bb03-58fc7ef63389",
+      "name": "outputMultiples"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node (JavaScript)\n// Devuelve VARIOS ITEMS (uno por carga) para poder entrar directo a un loop\n\nconst cargas =\n  $('When Executed by Another Workflow').first().json.cargasMultiples ?? [];\n\nreturn cargas.map(carga => ({\n  json: {\n    carga\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -432
+      ],
+      "id": "9247fef4-63f8-4d37-9449-1ca9ecffda99",
+      "name": "itemsCargas"
+    },
+    {
+      "parameters": {
+        "content": "## isOperadorFollow = true",
+        "height": 368,
+        "width": 1312,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -544
+      ],
+      "typeVersion": 1,
+      "id": "edccdd95-9d5c-4586-81e2-b9d1b409f67a",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## isOperadorFollow = false\nAcá interactúa la IA",
+        "height": 368,
+        "width": 1312,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -928
+      ],
+      "typeVersion": 1,
+      "id": "c81daf75-4861-42d3-aa1b-28c5c0d42cff",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ee176887-55ea-490f-9322-8aa08afd6f4f",
+              "leftValue": "={{ $json.isOperadorFollow }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        -48
+      ],
+      "id": "9e2e4902-b2ad-460b-a07a-cb548a0337aa",
+      "name": "isOperadorFollow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6f79bc31-216d-4e1b-8954-3dfcd9ea9a1d",
+              "leftValue": "={{ $json.cargasMultiples }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -784
+      ],
+      "id": "00effda1-369c-4dd3-a5d0-64f60e7bba71",
+      "name": "esMultiple1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: $input.first().json.cargasMultiples = [ \"carga#1: ...\", \"carga#2: ...\", ... ]\n\nconst cargas = $input.first().json.cargasMultiples ?? [];\n\nconst listado = cargas.map((texto, idx) => ({\n  id: `carga#${idx + 1}`,            // id estable aunque el texto venga raro\n  texto: String(texto ?? \"\").trim(), // flexible\n  estado: \"PENDIENTE\",               // default\n  updatedAt: new Date().toISOString()\n}));\n\nreturn [{\n  json: {\n    redisKey: `cargasMultiples:${$input.first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from ?? $input.first().json.context.metaDatos.body.entry[0].changes[0].value.contacts[0].wa_id}`, // o el id que uses\n    cargasListado: listado\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -800
+      ],
+      "id": "84358b51-2dc7-4b1f-bea7-17f9e6b00d50",
+      "name": "preparaRedis"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.redisKey }}",
+        "value": "={{ JSON.stringify({ items: $json.cargasListado }) }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -800
+      ],
+      "id": "daa3838b-6614-4d27-aa2f-6a371c43e0c6",
+      "name": "setCargaMultiple",
+      "credentials": {
+        "redis": {
+          "id": "mBLiqZGdPZu9yuTW",
+          "name": "Redis account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "context",
+              "type": "object"
+            },
+            {
+              "name": "output",
+              "type": "object"
+            },
+            {
+              "name": "phoneNumberId"
+            },
+            {
+              "name": "bufferId",
+              "type": "number"
+            },
+            {
+              "name": "isOperadorFollow",
+              "type": "boolean"
+            },
+            {
+              "name": "cargasMultiples",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        -48
+      ],
+      "id": "8091d980-1176-4e3c-8eb6-c7b64a699bae",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{cargasCreadas: $input.all()}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        -448
+      ],
+      "id": "84a80c2d-b380-465f-a6db-29c077f62b64",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7839c195-f444-44cf-9d51-252b8d6ee353",
+              "leftValue": "={{ $('When Executed by Another Workflow').first().json.isOperadorFollow }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "15c573f0-fe08-49a2-adac-960d6f00f1ce",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "IA_IN",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2816,
+        -32
+      ],
+      "id": "f42de943-fe3a-4efa-b69d-5d7a02430ea1",
+      "name": "IA IN y operadorFollow false"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "chatbot_clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{ $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.messages[0].from ?? $('When Executed by Another Workflow').first().json.context.metaDatos.body.entry[0].changes[0].value.contacts[0].wa_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        -32
+      ],
+      "id": "ef633fd8-e954-460a-a53f-a78cf872ede8",
+      "name": "Obtiene usuario",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "QxAkAFNDsfcSaz7M",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "context": {
+            "inputFinal": "Gracias marquitos",
+            "metaDatos": {
+              "origen": "UsuarioIAModel(nombreUsuario=Mateo López, idUsuario=8287156f-0f2a-48ec-8230-39de3b46164a, idChofer=null, idViajeActivo=null, rol=Administrador Local, pais=Argentina, isChofer=false, puedeManejar=false, trafico=false, administracionYPagos=false, planificacionYContratacion=false, operadorFollow=false, idEmpresa=5a3a80d3-219a-42ac-9868-3924e7d26c6a, nombreEmpresa=Mateo Transporte, actividadEmpresa=AMBOS)",
+              "destino": "UsuarioIAModel(nombreUsuario=Marcos Peroni, idUsuario=53626257-d891-4bc5-a563-0df1c6b2b3f6, idChofer=null, idViajeActivo=null, rol=Administrador Local, pais=Argentina, isChofer=false, puedeManejar=false, trafico=false, administracionYPagos=false, planificacionYContratacion=true, operadorFollow=true, idEmpresa=7b5ec961-be0c-4ffa-8e32-1d85f25b2d12, nombreEmpresa=FOLLOW INTELIGENCIA EN MOVIMIENTO S. A. S., actividadEmpresa=TRANSPORTADOR)",
+              "body": {
+                "entry": [
+                  {
+                    "changes": [
+                      {
+                        "field": "messages",
+                        "value": {
+                          "metadata": {
+                            "phone_number_id": "540162439179061",
+                            "display_phone_number": "5492615396722"
+                          },
+                          "messaging_product": "whatsapp",
+                          "messages": [
+                            {
+                              "from": "5492615088239",
+                              "id": "wamid.HBgNNTQ5MjYxNTA4ODIzORUCABIYFjNFQjAzOEU3RkFGNUQzMDk0QjM4RTYA",
+                              "text": {
+                                "body": "Gracias marquitos"
+                              },
+                              "type": "text",
+                              "timestamp": "1767017726"
+                            }
+                          ],
+                          "contacts": [
+                            {
+                              "profile": {
+                                "name": "Mateo Lopez"
+                              },
+                              "wa_id": "5492615088239"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "id": "481104675092951"
+                  }
+                ],
+                "object": "whatsapp_business_account"
+              }
+            },
+            "cargasMultiples": [],
+            "sessionKey": "mem_clasificador_5492615088239"
+          },
+          "output": {
+            "rolUsuario": "cualquiera",
+            "intencion": "saludar",
+            "inputUsuario": "Gracias marquitos"
+          },
+          "phoneNumberId": "540162439179061",
+          "bufferId": 149,
+          "isOperadorFollow": true,
+          "cargasMultiples": []
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB31_CrearCarga",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB32_Contratacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB32_Contratacion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB3331_Planificacion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB3331_Planificacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB3332_Ejecucion",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB3332_Ejecucion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB33321_Incidentes",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB33321_Incidentes": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB33322_ControlDMS",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB33322_ControlDMS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB33323_ConsultaEstados",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB33323_ConsultaEstados": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AgenteB34_Pagos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB34_Pagos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteDador": {
+      "main": [
+        [
+          {
+            "node": "debeIterar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgenteB31_CrearCarga": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB31_CrearCarga": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB31_CrearCarga",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB32_Contratacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB32_Contratacion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB3331_Planificacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB3331_Planificacion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB3332_Ejecucion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB3332_Ejecucion",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB33321_Incidentes": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB33321_Incidentes",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB33322_ControlDMS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB33322_ControlDMS",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB33323_ConsultaEstados": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB33323_ConsultaEstados",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaB34_Pagos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB34_Pagos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara redis id": {
+      "main": [
+        [
+          {
+            "node": "Set msj cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set msj cliente": {
+      "main": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MemoriaPrincipal": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_IA_OUT": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB31_CrearCarga",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AgenteDador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get MemoriaPrincipal": {
+      "main": [
+        [
+          {
+            "node": "Prepara redis id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje final": {
+      "main": [
+        [
+          {
+            "node": "Set respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "crearCarga": {
+      "ai_tool": [
+        [
+          {
+            "node": "AgenteB31_CrearCarga",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set respuesta": {
+      "main": [
+        [
+          {
+            "node": "Obtiene usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta a usuario por medio de Follow": {
+      "main": [
+        [
+          {
+            "node": "Supabase RPC - Finalize flush",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "esMultiple": {
+      "main": [
+        [
+          {
+            "node": "itemsCargas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get MemoriaPrincipal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get MemoriaPrincipal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "debeIterar": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "outputMultiples": {
+      "main": [
+        [
+          {
+            "node": "Mensaje final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "itemsCargas": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isOperadorFollow": {
+      "main": [
+        [
+          {
+            "node": "esMultiple",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "esMultiple1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "esMultiple1": {
+      "main": [
+        [
+          {
+            "node": "preparaRedis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get MemoriaPrincipal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "preparaRedis": {
+      "main": [
+        [
+          {
+            "node": "setCargaMultiple",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "isOperadorFollow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "outputMultiples",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA IN y operadorFollow false": {
+      "main": [
+        [
+          {
+            "node": "Respuesta a usuario por medio de Follow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtiene usuario": {
+      "main": [
+        [
+          {
+            "node": "IA IN y operadorFollow false",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3e2f3e7-2ebb-4f1a-a531-d49b9aa9dcd2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "056e55fc9af2abd75cc7ad9fd6d21940852d41975ce0df2edfc054ca3990cdcb"
+  },
+  "id": "Z9YwFbstxR7AkXkA",
+  "tags": []
+}
