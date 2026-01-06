@@ -4,7 +4,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "wpp-bot-message-upsert",
+        "path": "message-upsert",
         "options": {}
       },
       "name": "Webhook",
