@@ -829,7 +829,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer sb_secret_nD0kGJJXCzI7-rLFVCp4MA_NUiKEkpt"
+              "value": ""
             },
             {
               "name": "Content-Type",
@@ -866,7 +866,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer sb_secret_nD0kGJJXCzI7-rLFVCp4MA_NUiKEkpt"
+              "value": ""
             },
             {
               "name": "Content-Type",
@@ -1189,7 +1189,7 @@
             {
               "id": "a18b0461-5eac-4d78-8a43-7f0a1f26d1b1",
               "name": "ACCESS_TOKEN",
-              "value": "EAAJNtgkHBckBPkjrjCBZAkjnyITCVfAZCUnssNsaSxn84xGWL9dZCZBfSNTNBdWrZBxM5OmL9UFjSlPXU8uRiZCIIUqAiZCsRfPFHtOR9fCZCM4Ks829PR1OD6YkvghLJg0OH6yMfWhCRQRcn5OyqgELxQtPQR2IAsR2I0W4aRIxZCyu6bishZBm5M1uGg3PGZAfXeZBNgZDZD",
+              "value": "",
               "type": "string"
             },
             {
